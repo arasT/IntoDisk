@@ -19,7 +19,7 @@ Using this tool, you can:
 * Do action on files or folders: rename, delete, properties;
 * Save scanned informations to avoid rescanning later.
 
-Screeshoots
+Screenshots
 ---
 <img src="./screenshoots/IntoDisk-scan.jpg" alt="Scan Partitions" width="480">
 <img src="./screenshoots/IntoDisk-suburst.jpg" alt="Sunburst" width="480">
