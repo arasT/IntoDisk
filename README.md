@@ -95,7 +95,9 @@ npm install electron -g
 Run the app
 ---
 **Note:** it uses **3456** as default port.
+Return into the root folder of the app (above 'http' folder), then run electron.
 ```
+cd ..
 electron .
 ```
 
@@ -136,6 +138,8 @@ var configPath = path.join(path.dirname(process.execPath), 'config/diExtension.j
 
 Then, build stand alone app using [electron-packager](https://github.com/electron-userland/electron-packager).
 **IMPORTANT**
+
+
 * For Linux and Windows, you have to copy 'http/public/config' folder into root folder of the created package.
 * For Mac OS X, copy 'http/public/config' folder into 'IntoDisk.app/content/MacOS' folder.
 You can take a look at packaged by downloading a release from the **Releases** section above.
