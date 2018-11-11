@@ -104,7 +104,7 @@ electron .
 Build new releases
 ---
 If you want to improve IntoDisk and build new releases, you have to change some paths into some files:
-* Into **main.js***: change **options.json** path by commenting the following line:
+* Into **main.js**: change **options.json** path by commenting the following line:
 ```
 var configPath = './http/public/config/options.json';
 ```
@@ -112,7 +112,7 @@ and uncommenting
 ```
 var configPath = path.join(path.dirname(process.execPath), 'config/options.json');
 ```
-* And, into **http/routes/options.js**: change these paths by commenting these following lines:
+* And, into **'http/routes/options.js'**: change these paths by commenting these following lines:
 ```
 var defaultConfigPath = path.join(__dirname, '../public/config/default_options.json');
 var configPath = path.join(__dirname, '../public/config/options.json');
@@ -127,7 +127,7 @@ var configPath = path.join(path.dirname(process.execPath), 'config/options.json'
 var diExtensionPath = path.join(path.dirname(process.execPath), 'config/diExtension.json');
 var default_diExtensionPath = path.join(path.dirname(process.execPath), 'config/default_diExtension.json');
 ```
-* Finally, into **http/routes/search.js**: change extension path by commenting the following line:
+* Finally, into **'http/routes/search.js'**: change extension path by commenting the following line:
 ```
 var configPath = path.join(__dirname, '../public/config/diExtension.json');
 ```
@@ -140,8 +140,8 @@ Then, build stand alone app using [electron-packager](https://github.com/electro
 
 
 **IMPORTANT**
-* For Linux and Windows, you have to copy **http/public/config** folder into root folder of the created package.
-* For Mac OS X, copy **http/public/config** folder into **IntoDisk.app/content/MacOS** folder.
+* For Linux and Windows, you have to copy **'http/public/config'** folder into root folder of the created package.
+* For Mac OS X, copy **'http/public/config'** folder into **'IntoDisk.app/content/MacOS'** folder.
 You can take a look at packaged by downloading a release from the **Releases** section above.
 
 License
