@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>IntoDisk</title>
+</head>
+<body>
+  <script>
+  var path = require('path'),
+      //jsonfile = require('jsonfile'),
+      fs = require('fs');
+
+  // For development process use the code bellow
+  var configPath = './http/public/config/options.json';
+
+  // For production use the code bellow and don't forget to copy config files
+  //var configPath = path.join(path.dirname(process.execPath), 'config/options.json');
+
+  var configContent = jsonfile.readFileSync(configPath);
+
+  var configContent = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+
+  //location.href = 'http://localhost:3456';
+  location.href = 'http://localhost:' + configContent.port;
+  </script>
+</body>
+</html>

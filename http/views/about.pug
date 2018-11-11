@@ -1,0 +1,25 @@
+include layout
+
+append body
+  .container
+    p.page-header
+      +panel-primary('About IntoDisk')
+        .media
+          a.pull-left(href='#')
+            img.media-object(src='/images/IntoDiskLogo.png' style='width:200px;height:200px')
+          .media-body
+            h4 Another way to explore your disk.
+            table
+              tbody
+                tr
+                  td Version
+                  td : 0.3.0
+                tr
+                  td Website
+                  td : <a href='http://www.in2disk.com' target="_blank"> www.in2disk.com </a>
+                tr
+                  td Released date
+                  td : 02-26-2018
+            br
+            br
+            p Have a fun! :)

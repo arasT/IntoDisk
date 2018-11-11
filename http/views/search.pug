@@ -1,0 +1,49 @@
+include layout
+
+append body
+
+	div#containerMiddle(style={'overflow':'hidden'})
+
+		.col-sm-3
+			//h5.page-header.center-content Legend
+			br
+			br
+			// Legend section
+			.panel-group#legendSection
+
+		.col-sm-9
+			//h5.page-header.center-content Search
+			br
+			br
+
+			// Search section
+			div.center-content(style={'height':'8px', 'overflow':'hidden'})
+				div#loadingImage(style={'display':'none'}): img(src='/images/line.gif')
+			.input-group
+				+input-simple('text', 'searchField', {'placeholder':' Type at least 2 characters'})
+				.input-group-btn
+					button.btn.btn-default(disabled): i.glyphicon.glyphicon-search
+			#searchResult
+			#searchTooltipMenu.btn-group-vertical
+
+
+
+append scripts
+	script.
+		$('#searchField').focus();		// auto focus to the search input field
+
+		// Import electron dialog box
+		//var remote = require('electron').remote.dialog;
+		var remote = require('electron').remote;
+		var dialog = remote.dialog;
+
+		var extensionConfig = !{extensionConfig}; // Holds files extension and color
+
+		// Defined into legendExt.js
+		createLegend('#legendSection', extensionConfig);
+
+		// Intialize listner from search input, defined into script.js
+		search('#searchField', '#searchResult', '#loadingImage');
+
+		// Div where to put the menu for search section
+		$("body").click(function(){return $('#searchTooltipMenu').attr('style', 'visibility : hidden');});

@@ -1,0 +1,45 @@
+include layout
+
+append body
+	.container
+		p.page-header
+
+		.jumbotron
+			h2 IntoDisk: Explore your disk on different way!
+			.media
+				a.pull-left(href='#')
+					img.media-object(src='/images/IntoDiskLogo.png' style='width:100px;height:100px')
+				.media-body.justify-content
+							| IntoDisk is a tool that helps you to analyze your disk <strong> space </strong> and
+							| to explore it <strong>easily</strong> and <strong>fastly</strong>.
+							br
+							| You can <strong>scan</strong> a folder, one or all partitions, then see <strong>chart</strong> of folders representation
+							| and paritions statistics. Then you can perform a <strong>search</strong> for any files or folders.
+							br
+							| To avoid other scan after computer restart or after closing the software,
+							| it is possible to <strong>save</strong> the scan results.
+			//
+				.center-content(style='padding:20px; font-size:20px;')
+					ul.list-inline
+						li Cross-platform |
+						//li Fast |
+						li Responsive Design
+			br
+			br
+			//a(href='/linux-x64.zip') download linux
+			//br
+			//a(href='/mac-x64.zip') download mac
+
+			.btn-group(style='float:right;')
+				button.btn.btn-success.button_100px#startButton Start
+				button.btn.btn-info.button_100px#tutorialButton Tutorial
+
+append scripts
+	script.
+
+		$('#tutorialButton').click(function(){
+			location.href = '/tutorial';
+		});
+		$('#startButton').click(function(){
+			location.href = '/scan';
+		});

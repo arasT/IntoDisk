@@ -1,0 +1,36 @@
+/* Style for barInfo.js */
+
+.bi-container {
+  border-bottom: solid 1px rgba(125,125,125,0.2);
+}
+
+.bi-details-container {
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.bi-percent-container {
+  width:75%;
+  display:inline-block;
+}
+
+.bi-bar-percent {
+  position: absolute;
+  width: 50%;
+  height: 10px;
+  overflow:hidden;
+  font-size:10px;
+  margin: 4px 2px 0 2px;
+}
+
+.bi-bar-percent-stream {
+  position: absolute;
+  width: 100%;
+  text-align:center;
+}
+
+.bi-action-container {
+  position:absolute;
+  width:25%;
+  display:inline-block;
+}

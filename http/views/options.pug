@@ -1,0 +1,335 @@
+include layout
+
+append body
+
+  .container.justify-content
+    h3.page-header Options
+    h4 Port Configuration
+    | Current port :
+    input#portInput(type='number' min='1025' max='65535' style='margin-left:5px; padding-left:5px;')
+    .btn.btn-success#updateButton(style='margin-left:5px;') Update
+
+    p Click on the button bellow to reset port to default configuration.
+      .btn.btn-default#resetPortButton Reset Port
+
+    br
+    h4 Files Types and Extensions
+    ul
+      li Import file configuration that contains files types color and their corresponding extensions.
+      li Export your own to save it or to share it.
+      li Add, Edit, Remove existing files types color and extensions; then save changes.
+    .center-content
+      .btn-group
+        .btn.btn-primary.importButton(style='width:80px;') Import
+        .btn.btn-primary.exportButton(style='width:80px;') Export
+        .btn.btn-warning.cancelButton(style='width:80px;') Cancel
+        .btn.btn-success.saveButton(style='width:80px;') Save
+
+    // Dynamic content
+    #extensionsListContainer
+
+    .btn.btn-primary.addFileType Add File Type
+    .center-content(style='margin-top:10px;')
+      .btn-group
+        .btn.btn-primary.importButton(style='width:80px;') Import
+        .btn.btn-primary.exportButton(style='width:80px;') Export
+        .btn.btn-warning.cancelButton(style='width:80px;') Cancel
+        .btn.btn-success.saveButton(style='width:80px;') Save
+
+    br
+    p Click on the button bellow to reset Files Types and Extensions to default configuration.
+      .btn.btn-default#resetTypesExtensions Reset Types Extensions
+
+  // Hidden input for import/export action; will be triggered into script bellow
+  //<input style="display:none;" id="importDialog" type="file" accept=".json"/>
+  //<input style="display:none;" id="exportDialog" type="file" nwsaveas />
+
+  //
+    .hideIt
+      form(action="/options/exportFileType", method="POST")
+        input#extensionList(name="extensionList" value="")
+        button#exportButton(type="submit") Export
+
+append scripts
+  script.
+
+    // Import electron dialog box
+    var dialog = require('electron').remote.dialog;
+
+    // Display port
+    var port = '#{port}';
+    $('#portInput').val(port);
+
+    // Display files type and extensions list
+    //console.log($('#extensionsListContainer')[0].children[0].className);
+    var extensionConfig = !{extensionConfig};
+    //console.log(extensionConfig);
+
+    //Defined into legendExt.js
+    displayExtensionsConfiguration('#extensionsListContainer', extensionConfig);
+
+    $('#updateButton').click(function(){
+      var updatedPort = $('#portInput').val();
+
+      if (updatedPort == parseInt(port)) {                // Check if user enter a new port
+        displayMessage('Please enter a different port number!', 'error', '');
+      } else {
+        if (updatedPort < 1024 || updatedPort > 65535) {  // Check if the port is valid
+          displayMessage('Please enter a port number above 1024 and bellow 65535!', 'error', '');
+        } else {
+
+          // Update configuration file
+          var updatePortStream = new EventSource('/options/updatePort/' + updatedPort);
+          updatePortStream.onmessage = function(event) {
+            var res = JSON.parse(event.data);
+            updatePortStream.close();
+            if (res.success) {
+              displayMessage(res.message, 'success', '');
+            } else {
+              displayMessage(res.message, 'error', '');
+            }
+          };
+        }
+      }
+    });   // End click function on #updateButton
+
+    $('#resetPortButton').click(function() {
+
+      // Reset port configuration
+      var resetConfigStream = new EventSource('/options/resetPort');
+      resetConfigStream.onmessage = function(event) {
+        var res = JSON.parse(event.data);
+        resetConfigStream.close();
+        if (res.success) {
+          displayMessage(res.message, 'success', '');
+        } else {
+          displayMessage(res.message, 'error', '');
+        }
+      };
+    });   // End click function on #resetPortButton
+
+    // Trigger click event on the input tag for import/export :
+    $('.importButton').click(function() {
+      //$('#importDialog').click();
+
+      dialog.showOpenDialog(
+        {
+          title : 'Import extensions and types configuration file.',
+          filters : [{name:'JSON File', extensions: ['json']}]
+        },
+        function(filePaths) {
+          if (filePaths === undefined) return;
+
+          var filePath = filePaths[0];
+          // Display waiting message
+          var scanDialog = bootbox.dialog({
+            message: 'Please wait while importing file ... ',
+            closeButton: false,
+            animate: false
+          });
+
+          // Import file from server, server returns error if problem appears
+          var importFileStream = new EventSource('/options/fileToImport/' + filePath);
+          importFileStream.onmessage = function(event) {
+            var opResult = JSON.parse(event.data);
+            importFileStream.close();
+            scanDialog.modal('hide');   // Hide waiting message
+            var dialogType = 'error';
+            if (opResult.success) {
+
+              // Update partition extension statistic if succeed
+              updateFileStat();
+              dialogType = 'success';
+            }
+            displayMessage(opResult.message, dialogType, '/options');  // Display message
+          };
+        }
+      );      // End showOpenDialog
+    });
+
+    $('.exportButton').click(function() {
+
+      // First, check if all datas are valid before operation;
+      //  checkExtensionFiles(datas) is defined into legendExt.js and options.js (server side)
+      var checkResult = checkExtensionFiles(getTypeAndExtension());
+      if (checkResult.error) {
+        displayMessage(checkResult.message, 'error', '');
+      } else {                        // Trigger click only if all data are correct
+        //$('#exportDialog').click();
+
+        dialog.showSaveDialog(
+          {
+            title : 'Export types and extensions configuration.',
+            filters : [{name:'JSON File', extensions: ['json']}]
+          },
+          function(filePath) {
+            // Local function to export or save at server
+            exportOrSave(filePath);
+          }
+        );      // End showSaveDialog
+      }
+    });
+
+    // Action if user chosed to import configuration
+    $('#importDialog').change(function(){
+    	var filePath = this.value;
+      if (filePath.length > 0) {
+
+        // Display waiting message
+        var scanDialog = bootbox.dialog({
+          message: 'Please wait while importing file ... ',
+          closeButton: false,
+          animate: false
+        });
+
+        // Import file from server, server returns error if problem appears
+        var importFileStream = new EventSource('/options/fileToImport/' + filePath);
+        importFileStream.onmessage = function(event) {
+          var opResult = JSON.parse(event.data);
+          importFileStream.close();
+          scanDialog.modal('hide');   // Hide waiting message
+          var dialogType = 'error';
+          if (opResult.success) {
+
+            // Update partition extension statistic if succeed
+            updateFileStat();
+            dialogType = 'success';
+          }
+          displayMessage(opResult.message, dialogType, '/options');  // Display message
+        };
+      }
+    });
+
+    // Action on save extension configuration
+    $('.saveButton').click(function(){
+
+      // First, check if all datas are valid before operation;
+      //  checkExtensionFiles(datas) is defined into legendExt.js and options.js (server side)
+      var checkResult = checkExtensionFiles(getTypeAndExtension());
+      if (checkResult.error) {
+        displayMessage(checkResult.message, 'error', '');
+      } else {                        // Save only if all data are correct
+
+        // Local function to export or save at server
+        exportOrSave('');
+
+      }
+    });
+
+    // Action on cancel extension configuration
+    $('.cancelButton').click(function(){
+      location.href = '/options';
+    });
+
+    // Action if user want to export configuration
+    $('#exportDialog').change(function() {
+
+      /*$('#extensionList').val(JSON.stringify(getTypeAndExtension()));
+      $('#exportButton').click();*/
+
+    	var filePath = this.value;
+      if (filePath.length > 0) {
+
+        // Local function to export or save at server
+        exportOrSave(filePath);
+      }
+
+    });
+
+    // User want to add new type of file
+    $('.addFileType').click(function() {
+
+      bootbox.prompt({
+        title       : ['<div class="text-info">',
+                        '<span class="glyphicon glyphicon-edit"></span> Enter new type:</div>'].join(''),
+        callback  : function(newType) {
+          if (newType) {
+
+            // Check if the new type is valid
+            if (/\W/g.test(newType)) {
+              displayMessage('New type cannot contains special character!', 'error', '');
+            } else {
+
+              // Check if the new type is not yet present; fileTypePresent(type) is defined into legendExt.js
+              if (fileTypePresent(newType)) {
+                displayMessage(['\'', newType, '\' type already exist! Please enter another type.'].join(''), 'error', '');
+              } else {
+                // createFileType is defined into legendExt.js; Default color: black, empty extension list
+                createFileType(null, newType, '#000', [], '#accordionContainer');
+              }
+            }
+          }
+
+        }             // End callback
+      });             // End prompt
+
+    });
+
+    // Export or save at server, server returns error if problem appears
+    function exportOrSave(filePath) {
+
+      // getTypeAndExtension() is defined into script.js
+      var allFileTypes = JSON.stringify(getTypeAndExtension());
+
+      $.ajax({
+        url					: ['/options/exportOrSave/', filePath].join(''),
+        data				: {'fileTypeExtension' : allFileTypes},
+        success			: function(datas) {
+          //console.log(datas);
+          //scanDialog.modal('hide');   // Hide waiting message
+          var dialogType = 'error';
+          if (datas.success) {
+            dialogType = 'success';
+
+            // Update partition extension statistic if succed (only for 'save' action)
+            if (filePath.length == 0) {
+              updateFileStat();
+            }
+
+          }
+          displayMessage(datas.message, dialogType, '/options');
+        },
+        dataType		: 'json',
+        timeout 		: 10000,
+        error  			: function() {
+          displayMessage('An error occurs while exporting!', 'error', '/options');
+        }
+      });
+    }
+
+    // Reset files types and extensions
+    $('#resetTypesExtensions').click(function() {
+      var title = ['<div class="text-warning">',
+                    '<span class="glyphicon glyphicon-warning-sign"></span> Confirm reset.</div>'].join('');
+      var message = ['Are you sure to reset Files Types and Extensions!'].join('');
+      var callback = function (result) {
+        // If user confirm the action
+        if (result) {
+          var resetStream = new EventSource('/options/resetFilesExtensions');
+          resetStream.onmessage = function(event) {
+            var resetRes = JSON.parse(event.data);
+            resetStream.close();
+            if (resetRes.error) {
+              displayMessage(resetRes.message, 'error', '/options');
+            } else {
+
+              // Update partition extension statistic if succeed
+              updateFileStat();
+              displayMessage(resetRes.message, 'success', '/options');
+            }
+          };
+        }
+      };    //End callback
+
+      // Create the confirm bootbox after all parameters are ready; displayConfirm() defined into script.js
+      displayConfirm(title, message, callback);
+    });
+
+
+    // Local function to update file statistic after any changes on configuration
+    function updateFileStat() {
+      var fileExtSource = new EventSource('/scan/updateStat');
+      fileExtSource.onmessage = function(event) {
+        fileExtSource.close();
+      };
+    }

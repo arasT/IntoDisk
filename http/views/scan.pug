@@ -1,0 +1,205 @@
+include layout
+
+append body
+
+	div#containerMiddle(style={'overflow':'hidden'})
+
+		.col-sm-3
+			h5.page-header.center-content Scan
+			//+input-simple('text', 'directoryPathField', {'placeholder':'Enter a path'})
+			.input-group
+				// The nwdirectory attribute don't work with pug?!; hidden the input for design reason
+				//<input style="display:none" type="file" nwdirectory id="getDirectoryPath"/>
+				//<input style="display:none" type="file" webkitdirectory id="getDirectoryPath"/>
+				input.form-control(type="text" id="directoryPathField" disabled)
+				.input-group-btn
+					button.btn.btn-default#getScanFolderButton: i.glyphicon.glyphicon-folder-open
+
+			h5.center-content Legend
+			// Legend section
+			.panel-group#legendSection
+
+		.col-sm-6
+			h5.page-header.center-content Chart
+			span
+				a.btn.btn-default#refreshButton(title='Refresh', style={'margin':'0px 10px 10px 0px'})
+					//+icon('refresh')
+					span.glyphicon.glyphicon-refresh
+				#breadcrumbsId(style={'display':'inline-block','width':'84%'})
+			.center-content#sunburstChart
+				+panel-info('Tips!')
+					p Click on folder icon to scan a folder.
+					p Write into the search field to perform a search.
+				#dropDirectory
+					h4(style={'color':'#ccc'}) Or drop a folder to scan here.
+
+		.col-sm-3
+			h5.page-header.center-content File System
+			#FileSystemInfo
+			div.center-content(style={'padding-top':'4px'})
+				button.btn.btn-primary#buttonScanAll Scan All Partitions
+			#FileStat.center-content
+
+
+append scripts
+	script.
+
+		// Import electron dialog box
+		//var remote = require('electron').remote.dialog;
+		//console.log(dialog);
+		var remote = require('electron').remote;
+		var dialog = remote.dialog;
+
+		var os = '#{os}';					// Holds OS
+		var partitionList = [];		// Holds informations about partitions
+		var gotPartInfo = 'false';// Used to check informations about partitions was already gotten
+		var extensionConfig = !{extensionConfig}; // Holds files extension and color
+
+		// Configure container where to drop file
+		var dropDirectory = document.getElementById('dropDirectory');
+		dropDirectory.ondrop = function (e) {
+		  e.preventDefault();
+			var folderPath = e.dataTransfer.files[0].path;
+			//alert(folderPath);
+
+			// Check if the dropped element is a directory, if so scan it
+			var checkElementStream = new EventSource('/stream/checkType/' + 'directory' + '<>' + folderPath);
+			checkElementStream.onmessage = function(event) {
+				var res = JSON.parse(event.data);
+				checkElementStream.close();
+				if (res.type == 'directory') {
+					scanGivenPath(folderPath);
+				} else {
+					displayMessage('Please drop a folder, not a file!', 'error', '');
+				}
+			};
+		  //return false;
+		};
+
+		// Display informations about existing file system
+		streamFileSystemInfo('/stream/fsInfo');
+
+		//Update file system informations every two seconds
+		setInterval(function() {
+			streamFileSystemInfo('/stream/fsInfo');
+		}, 4000);
+
+		var scannedPath = '';
+		// Display the sunburst if a scan was performed
+		if (!{data} != 'no scan') {
+			var data = !{data}, scannedPath = '#{scannedPath}';
+			createSunburst(data, '#sunburstChart', '#extStat', os, extensionConfig);
+		}
+
+		$('#directoryPathField').val(scannedPath);
+
+		// Trigger click event on the input tag which open dialog to chose directory (which's hidden)
+		$('#getScanFolderButton').click(function() {
+			//$('#getDirectoryPath').click();
+
+			dialog.showOpenDialog({
+					title : 'Chose a directory to scan.',
+			    properties: ['openDirectory']
+			  },
+				function (dirPaths) {
+			  if (dirPaths === undefined) return;
+			  var dirPath = dirPaths[0];
+
+				// Update the field where chosen directory path will appears
+				$('#directoryPathField').val(dirPath);
+
+				// Scan the given path
+				scanGivenPath(dirPath);
+
+		 });
+
+		});
+
+		// Action if user chosed a directory
+		$('#getDirectoryPath').change(function(){
+			var folderPath = this.value;
+
+			// Only proceed scan if user chose a folder
+			if (folderPath.length > 0) {
+				//alert(folderPath);
+
+				// Update the field where chosen directory path will appears
+				$('#directoryPathField').val(folderPath);
+
+				// Scan the given path
+				scanGivenPath(folderPath);
+			}
+		});
+
+		$('#refreshButton').click(function() {
+
+			// Defined into script.js
+			partialScanDialogBox('');
+
+			/*if ($('#directoryPathField').val().length > 0) {
+
+				// Stream scan status and display chart;
+				//partialScanDialogBox($('#directoryPathField').val());
+				//location.href = '/scan/partialScan/';
+			}*/
+		});
+
+		$('#buttonScanAll').click(function() {
+			var partitionIdList = [];
+			//partitionList.forEach(function(part) {partitionIdList.push(part.fs);});
+			partitionList.forEach(function(part) {partitionIdList.push(part.mount);});
+
+			// First refresh all datas before rescanning all partitions
+			var refreshStream = new EventSource('/scan/refreshAllData');
+			refreshStream.onmessage = function(event) {
+				var res = JSON.parse(event.data);
+				refreshStream.close();
+
+				// Then proceed operation
+				// Defined at script.js
+				//scanAndDisplayStatus(['U:'], partitionList);
+				scanAndDisplayStatus(partitionIdList, partitionList, '#FileStat', extensionConfig);
+			};
+
+		});
+
+		// Defined into legendExt.js
+		createLegend('#legendSection', extensionConfig);
+
+		// Local function to stream file system informations
+		function streamFileSystemInfo(streamPath) {
+			var fsSource = new EventSource(streamPath);
+			fsSource.onmessage = function(event) {
+				var infoStream = JSON.parse(event.data);
+				fsSource.close();
+				partitionList = infoStream;
+
+				// Display (only once) partition statistic if exist, defined into script.js
+				if (gotPartInfo != 'true') {
+					displayUpdateFileStat('#FileStat', partitionList, extensionConfig);
+				}
+
+				gotPartInfo = 'true';
+				barFileSystemInfo('#FileSystemInfo', infoStream, os);	// Defined into barInfo.js
+			};
+		}
+
+		// Local function to scan a directory path given by user
+		function scanGivenPath(folderPath) {
+
+			// First check if the given path was already scanned
+			var checkStream = new EventSource('/scan/checkScan/' + folderPath);
+			checkStream.onmessage = function(event) {
+				var resCheck = JSON.parse(event.data);
+				checkStream.close();
+
+				// If so, do not scan anymore (display chart only)
+				if (resCheck == 'scanned') {
+					location.href = '/scan/displaySunburst/' + folderPath;
+				} else {	// Scan the given path
+
+					// Partial (folder) scan: stream scan status and display chart; defined into script.js
+					partialScanDialogBox(folderPath);
+				}
+			};
+		}

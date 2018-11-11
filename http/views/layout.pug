@@ -1,0 +1,240 @@
+extends ../node_modules/pug-bootstrap/_bootstrap
+
+append styles
+  // Include styles libraries
+  link(rel='stylesheet', href='/css/lib/tooltipster.bundle.min.css')
+  // 'show' class in jquery.rcrumbs.css was changed to 'rcShow' to avoid conflict width 'show' class in bootstrap
+  link(rel='stylesheet', href='/css/lib/jquery.rcrumbs.css')
+  link(rel='stylesheet', href='/css/lib/auto-complete.css')
+  // Many changes was done into 'piechart.css' to adjust it with this app
+  link(rel='stylesheet', href='/css/lib/piechart.css')
+  // URL for image into colorpicker.css was adjusted
+  link(rel='stylesheet', href='/css/lib/colorpicker.css')
+
+  // Custom styles for footer
+  link(rel='stylesheet', href='/css/sticky-footer.css')
+
+  // Custom styles for this app
+  link(rel='stylesheet', href='/css/lib/barInfo.css')
+  link(rel='stylesheet', href='/css/lib/legendExt.css')
+
+  //link(rel='stylesheet',href='/css/lib/lib.min.css')
+  link(rel='stylesheet',href='/css/style.css')
+
+block body
+  // Click on 'IntoDisk' will redirect to 'About'
+  +navbar-fixed('IntoDisk', 'navbar', 'inverse', '/')
+    //+nav_item('/') Home
+    //
+      +nav_item('/')
+        span(title='Home')
+          +icon('home')
+          |  Home
+
+    +nav_item_dropdown('#')('label'='File ')
+      +nav_item('#')
+        //span.newFile(title='New') New
+        span(style={'display':'block;'}).newFile New
+      +nav_item('#')
+        span(style={'display':'block;'}).openFile Open
+      +nav_item('#')
+        span(style={'display':'block;'}).saveFile Save
+      // +nav_item('#', 'quitApp') Quit
+    //
+      +nav_item('#')
+        span.newFile(title='New')
+          +icon('file')
+          |  New
+
+    +nav_item('/scan') Scan
+    +nav_item('/search') Search
+    +nav_item('/options') Options
+
+    +nav_item_dropdown('#')('label'='Help ')
+        +nav_item('/tutorial') Tutorial
+        +nav_item('/about') About
+
+  // Hidden input for file action; will be triggered into script bellow
+  //<input style="display:none;" id="openDialog" type="file" accept=".intoDisk"/>
+  //<input style="display:none;" id="saveDialog" type="file" nwsaveas />
+
+  footer.footer
+    div(style={'text-align':'center', 'margin':'10px'})
+        //span.text-muted: |Copyright © 2017
+        br
+        a(href='https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt' target="_blank")
+          |GPLv2 license
+        br
+        //a(href='http://www.in2disk.com' target="_blank") Go to website
+
+append scripts
+
+  // Include libraries
+
+  script(src='/js/eventsource-polyfill.js')       // Include eventsource polyfills (may be necessary)
+  script(src='/js/lib/d3.v3.min.js')              // Sunburst Chart
+  script(src='/js/lib/tooltipster.bundle.min.js') // Toolotip
+  script(src='/js/lib/bootbox.min.js')            // Modal ('bootbox-body' class was updated on style.css)
+  script(src='/js/lib/moment.min.js')             // Time human format
+  // 'show' class in jquery.rcrumbs.js was changed to 'rcShow' to avoid conflict width 'show' class in bootstrap
+  script(src='/js/lib/jquery.rcrumbs.js')         // Breadcrumbs
+  script(src='/js/lib/auto-complete.min.js')      // Autocompletion
+  script(src='/js/lib/piechart.js')               // Piechart (many changes was done to adjust it for this app)
+  script(src='/js/lib/colorpicker.js')            // Color picker
+  script(src='/js/lib/Chart.min.js')              // Chart statistic
+
+  // Include custom script for this app
+  script(src='/js/lib/barInfo.js')                // File system bar informations
+  script(src='/js/lib/customSunburst.js')         // Customize sunburst chart
+  script(src='/js/lib/legendExt.js')              // All scripts about files extensions label
+
+  script(src='/js/script.js')                     // Custom scripts
+
+  //
+    script(src='/js/lib/lib.min.js')
+    script(src='/js/script.min.js')
+
+  // Define customs action on menu (open, save, save as, ...)
+  script.
+
+    // Import electron dialog box
+    var dialog = require('electron').remote.dialog;
+
+    // Trigger click event on the input tag which open dialog to:
+    //  * want to refresh data (New)
+    //  * chose file to open
+    //  * save file
+    $('.newFile').click(function() {
+
+      // Refresh global variable on server
+      location.href = '/scan/new';
+    });
+
+    $('.openFile').click(function() {
+      //$('#openDialog').click();
+
+      dialog.showOpenDialog(
+        {
+          title : 'Open an IntoDisk data file.',
+          filters: [{name:'IntoDisk File', extensions: ['intoDisk']}]
+        },
+        function(filePaths) {
+          if (filePaths === undefined) return;
+
+          var filePath = filePaths[0];
+          // Display waiting message
+          var scanDialog = bootbox.dialog({
+            message: 'Please wait while opening file ... ',
+            closeButton: false,
+            animate: false
+          });
+
+          // Open file at server to popularize global variable, server returns error if problem appears
+          var giveFileStream = new EventSource('/scan/fileToOpen/' + filePath);
+          giveFileStream.onmessage = function(event) {
+            var opResult = JSON.parse(event.data);
+            giveFileStream.close();
+            scanDialog.modal('hide');   // Hide waiting message
+            var dialogType = 'error', redirection = '';
+            if (opResult.success) {
+              //dialogType = 'success';
+              location.href = '/scan';    // Redirect immediately without displaying message
+            }
+            //displayMessage(opResult.message, dialogType, redirection);  // Display message
+          };
+        }
+      );      // End showOpenDialog
+
+    });
+
+    $('.saveFile').click(function() {
+      //$('#saveDialog').click();
+
+      dialog.showSaveDialog(
+        {
+          title : 'Save IntoDisk data.',
+          filters: [{name:'IntoDisk File', extensions: ['intoDisk']}]
+        },
+        function(filePath) {
+          if (filePath === undefined) return;
+
+          // Display waiting message
+          var scanDialog = bootbox.dialog({
+            message: 'Please wait while saving file ... ',
+            closeButton: false,
+            animate: false
+          });
+
+          // Popularize file with global variable at server, server returns error if problem appears
+          var saveFileStream = new EventSource('/scan/fileToSave/' + filePath);
+          saveFileStream.onmessage = function(event) {
+            var opResult = JSON.parse(event.data);
+            saveFileStream.close();
+            scanDialog.modal('hide');   // Hide waiting message
+            var dialogType = 'error';
+            if (opResult.success) {
+              dialogType = 'success';
+            }
+            displayMessage(opResult.message, dialogType, '/scan');
+          };
+        }
+      );      // End showSaveDialog
+
+    });
+
+    // Action if user chosed a file to open
+    $('#openDialog').change(function(){
+    	var filePath = this.value;
+      if (filePath.length > 0) {
+
+        // Display waiting message
+        var scanDialog = bootbox.dialog({
+          message: 'Please wait while opening file ... ',
+          closeButton: false,
+          animate: false
+        });
+
+        // Open file at server to popularize global variable, server returns error if problem appears
+        var giveFileStream = new EventSource('/scan/fileToOpen/' + filePath);
+        giveFileStream.onmessage = function(event) {
+          var opResult = JSON.parse(event.data);
+          giveFileStream.close();
+          scanDialog.modal('hide');   // Hide waiting message
+          var dialogType = 'error', redirection = '';
+          if (opResult.success) {
+            dialogType = 'success';
+            //redirection = '/scan';    // Redirect to default scan page to see partition statistic
+            location.href = '/scan';    // Redirect immediately without displaying message
+          }
+          displayMessage(opResult.message, dialogType, redirection);  // Display message
+        };
+      }
+    });
+
+    // Action if user want to save file
+    $('#saveDialog').change(function() {
+    	var filePath = this.value;
+
+      if (filePath.length > 0) {
+
+        // Display waiting message
+        var scanDialog = bootbox.dialog({
+          message: 'Please wait while saving file ... ',
+          closeButton: false,
+          animate: false
+        });
+
+        // Popularize file with global variable at server, server returns error if problem appears
+        var saveFileStream = new EventSource('/scan/fileToSave/' + filePath);
+        saveFileStream.onmessage = function(event) {
+          var opResult = JSON.parse(event.data);
+          saveFileStream.close();
+          scanDialog.modal('hide');   // Hide waiting message
+          var dialogType = 'error';
+          if (opResult.success) {
+            dialogType = 'success';
+          }
+          displayMessage(opResult.message, dialogType, '/scan');
+        };
+      }
+    });

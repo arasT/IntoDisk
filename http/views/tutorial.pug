@@ -1,0 +1,430 @@
+include layout
+
+append body
+  .col-sm-3
+    br
+    br
+    .panel-group#menuPan
+      .panel.panel-default
+        .panel-heading
+          strong.panel-title
+            a(data-toggle="collapse", data-parent="#menuPan", href="#overviewCollapse") Overview
+        #overviewCollapse.panel-collapse.collapse.in
+          .panel-body
+            p: a(href="#description") Description
+            p: a(href="#website") Website
+      .panel.panel-default
+        .panel-heading
+          strong.panel-title
+            a(data-toggle="collapse", data-parent="#menuPan", href="#scanFolderCollapse") Folder Scan
+        #scanFolderCollapse.panel-collapse.collapse
+          .panel-body
+            p: a(href="#selectFolder") Select
+            p: a(href="#dragDropFolder") Drag & Drop
+      .panel.panel-default
+        .panel-heading
+          strong.panel-title
+            a(data-toggle="collapse", data-parent="#menuPan", href="#scanPartCollapse") Partition Scan
+        #scanPartCollapse.panel-collapse.collapse
+          .panel-body
+            p: a(href="#scanOne") Scan One
+            p: a(href="#scanAll") Scan All
+      .panel.panel-default
+        .panel-heading
+          strong.panel-title
+            a(data-toggle="collapse", data-parent="#menuPan", href="#chartCollapse") Chart
+        #chartCollapse.panel-collapse.collapse
+          .panel-body
+            p: a(href="#navigationChart") Chart navigation
+            p: a(href="#partStatChart") Partition Statistic
+            p: a(href="#actionChart") Action on Chart
+      .panel.panel-default
+        .panel-heading
+          strong.panel-title
+            a(data-toggle="collapse", data-parent="#menuPan", href="#searchCollapse") Search
+        #searchCollapse.panel-collapse.collapse
+          .panel-body
+            p: a(href="#searchElement") Search Element
+            p: a(href="#actionElement") Action on Search
+      .panel.panel-default
+        .panel-heading
+          strong.panel-title
+            a(data-toggle="collapse", data-parent="#menuPan", href="#dataCollapse") Exploit Data
+        #dataCollapse.panel-collapse.collapse
+          .panel-body
+            p: a(href="#new") New
+            p: a(href="#save") Save
+            p: a(href="#open") Open
+      .panel.panel-default
+        .panel-heading
+          strong.panel-title
+            a(data-toggle="collapse", data-parent="#menuPan", href="#optionsCollapse") Options
+        #optionsCollapse.panel-collapse.collapse
+          .panel-body
+            p: a(href="#portConfiguration") Port Configuration
+            p: a(href="#fileTypeExtensions") File Type Extensions
+
+
+  .col-sm-9.justify-content(style={'background':'#333','color':'white'})
+
+    h3.page-header Overview
+
+    h3#description(style="color:rgb(0,255,0);") Description
+    .media
+      a.pull-left(href='#')
+        img.media-object(src='/images/IntoDiskLogo.png' style='width:100px;height:100px')
+      .media-body
+        | <strong>IntoDisk</strong> is a software that helps you to explore your disk. It can scan a folder that you
+        | want to explore and display a chart representing files and folders size inside it.
+        br
+        | This tools can also scan quickly one or all partitions in your hard disk then display
+        | statistic about files inside each partitions like: video files percent, audio files, and so on ...
+    span
+      | Finally the scan results can be saved and you can open the saved file in the future to avoid
+      | another scan when you want to explore your disk or to perform a search.
+      | Obviously according to scan result and disk state when save was performed: recent changes on disk will not be taken.
+
+    p
+    h3#website(style="color:rgb(0,255,0);") Website
+    span
+      | <a href='http://www.in2disk.com' target="_blank"> www.in2disk.com </a> is the official website of IntoDisk.
+      | Don't hesitate to visit our website if you want to contact us.
+    //
+      | This software is very young and many improvements can be done on it. Please fill free
+      | to make <a href="www.in2disk.com">donation</a> if you want to help us to improve this software and make it better.
+
+    h3.page-header#folderScanSection Folder Scan
+    | This section will show how to scan a folder using two different ways: select folder or drag and drop folder.
+    br
+    | First go on scan page: click on <strong><a href='/scan' style="color:rgba(0,255,0,0.8);">Start</a></strong> button
+    | at <a href='/'>home</a> page,
+    | or click on <a href='/scan'>Scan</a> on top menu.
+    | A page similar to the <a href='#' id="figure1"> figure 1 </a> below will appear.
+    p
+    img(src='/images/folder_scan.png' id='figure1').tutorial_figure
+    br
+
+    h3#selectFolder(style="color:rgb(0,255,0);") Select
+    | On <a href='#figure1'>figure 1</a>, you can see an input field with a folder icon
+    | <span class="glyphicon glyphicon-folder-open"> </span> ( <strong style="color:red"> 1 </strong>) .
+    br
+    | The first way to scan a folder is clicking on this button. A file dialog window will appear and you will be
+    | able to choose a folder.
+
+    br
+    h3#dragDropFolder(style="color:rgb(0,255,0);") Drag & Drop
+    | The second way to scan a folder is to drop a folder into the dashed rectangle
+    | ( <strong style="color:red"> 2 </strong>) .
+    | The scan will be immediately performed without dialog window.
+
+    h3.page-header Partition Scan
+    |IntoDisk offers functionality  to scan one or all partitions on your hard disk.
+    br
+    |To scan partitions, go to scan page and you will see a page like the <a href='#figure2'> figure 2 </a> below
+    | (refer to <a href='#folderScanSection'> Folder Scan </a> section to go to scan page) .
+    p
+    img(src='/images/partition_scan.png' id='figure2').tutorial_figure
+    br
+    | As shown on <a href='#figure2'> figure 2 </a>, some information about mounted partitions are displayed:
+    ul
+      li The partition identifier, its percent usage and its file system type ( <strong style="color:red"> 1 </strong>) .
+      li A bar chart which represents total and used size of the partition ( <strong style="color:red"> 2 </strong>) .
+
+    h3#scanOne(style="color:rgb(0,255,0);") Scan one partition
+    | To scan one partition, click on the <span class="glyphicon glyphicon-zoom-in"></span> icon
+    | ( <strong style="color:red"> 3 </strong>) .
+    | A progress bar indicating the scan progression will appear until it is done.
+    | When the scan is done (scan progression disappears), click on the <span class="glyphicon glyphicon-eye-open"></span> icon
+    | ( <strong style="color:red"> 4 </strong>) to see chart representation of the partition.
+
+    br
+    h3#scanAll(style="color:rgb(0,255,0);") Scan all partitions
+    | To scan all partitions, click on <strong>'Scan All Partitions'</strong> button ( <strong style="color:red"> 5 </strong>) .
+    | A bar progression about each scan will appear until all scans are done.
+    br
+    <strong>Note :</strong>
+    ul
+      li If you want to rescan one partition, a confirm message will appear to indicate that this partition are already scanned.
+      li
+        | If you try to view a partition which is not yet scanned yet, an error message will appear to indicate that this partition
+        | was not yet scanned.
+
+    h3.page-header Chart
+    | After a scan we can have a chart which helps to see how much a folder or a file occupy the current folder, and we can explore
+    | in depth each folder.
+    br
+    | Also, there is another chart that displays statistics about scanned partitions. This chart is useful to know how much each
+    | type of file (videos, audios, documents, photos, ...) occupy the partition.
+    br
+    | The <a href='#'>figure 3</a> below illustrates more about those charts.
+    p
+    img(src='/images/chart_navigation.png' id='figure3').tutorial_figure
+    br
+
+    h3#navigationChart(style="color:rgb(0,255,0);") Chart navigation
+    | First of all, it is good to know that if you rename or delete something (file or folder) without using IntoDisk, those changes will not be
+    | immediately seen in the chart. You have to refresh the chart by clicking on refresh button <span class="glyphicon glyphicon-refresh"></span>
+    | (<strong style="color:red"> 1 </strong>) .
+    br
+    | To rename or delete something using IntoDisk, please refer to <a href='#actionChart'> Action on Chart </a> section.
+    br
+    | There is a breadcrumb near the refresh button (<strong style="color:red"> 2 </strong>) . You can use it to go upper on the folder tree and
+    | the chart (<strong style="color:red"> 3 </strong>) will be refreshed. You can also click on the middle of the chart to go upper.
+    | You can go in depth into the tree by clicking on an arc in the chart which represents a file or folder.
+    br
+    <strong>Note :</strong>
+    ul
+      li If you put the cursor over an arc, a tooltip will display the name and the size of the element (file or folder).
+      li If you click on an arc that represents a file, the chart will not be refreshed (obvious because you cannot explore a file in depth).
+
+    h3#partStatChart(style="color:rgb(0,255,0);") Partition Statistic
+    | As shown on <a href='#figure3'>figure 3</a> there are other chart that display information about files statistics into partitions
+    | (<strong style="color:red"> 4 </strong>) .
+    | Those charts display partition identifier, free space in percent and in size (used space is already displayed on the bar chart above
+    | <strong>'Scan All Partitions'</strong> button).
+    br
+    | Click on each arc to see occupied size of each file type (for instance: total size of videos into the partition), double click in
+    | the middle of the chart to return to information about partition statistics.
+    br
+    <strong>Note :</strong> If you want to know extensions for each file type, please refer to <a href='#fileTypeExtensions'>File Extensions</a> section.
+
+    h3#actionChart(style="color:rgb(0,255,0);") Action on Chart
+    | There are some actions that can be done using the chart that represents file and folder size (the chart in the middle).
+    | Just do a <strong>right click</strong> on an arc then a contextual menu will appear like on the <a href='#figure4'>figure 4</a> below.
+    p
+    img(src='/images/action_chart.png' id='figure4').tutorial_figure
+    br
+    ul
+      li
+        |Click on <strong>'Open'</strong> (<strong style="color:red"> 1 </strong>) to open the element
+        | (file or folder) represented by the arc. Open the file location if the arc represent a file, else open the folder.
+      li
+        |Click on <strong>'Rename'</strong> (<strong style="color:red"> 2 </strong>) to rename the element
+        | (file or folder) represented by the arc. A dialog box will appear with a field where to set the new name. You can cancel the action.
+      li
+        |Click on <strong>'Delete'</strong> (<strong style="color:red"> 3 </strong>) to delete the element. You can cancel the action but
+        | the deletion <span style="color:red">cannot be revert</span>, so be carefull.
+      li
+        |Click on <strong>'Chart'</strong> (<strong style="color:red"> 4 </strong>) to display chart of the element
+        | represented by the arc (appears for folder only).
+      li
+        |Click on <strong>'Statistic'</strong> (<strong style="color:red"> 5 </strong>) display statistics for each type of files inside a folder
+        | or a partition (see <a href='#figure5'>figure 5</a>).
+      li
+        |Click on <strong>'Properties'</strong> (<strong style="color:red"> 6 </strong>) to see more information like full path, name, size and
+        | some dates about the element as shown on <a href='#figure6'>figure 6</a> below.
+    p
+    img(src='/images/statistic.png' id='figure5').tutorial_figure
+    br
+    ul
+      li
+        |(<strong style="color:red"> 1 </strong>) partition or folder path for statistic.
+      li
+        |If the cursor is over a bar (<strong style="color:red"> 2 </strong>), it displays the occupied size in percent for type of file
+        | inside the partition or the folder.
+      li
+        |Click on this icon (<strong style="color:red"> 3 </strong>) to display statistic of a partition
+        | (or right click on an arc on the chart represented by a folder or a partition).
+    p
+    img(src='/images/properties.png' id='figure6').tutorial_figure
+    br
+    | On <a href='#figure6'>figure 6</a>: (<strong style="color:red"> 1 </strong>) represents the full path of the element.
+    | (<strong style="color:red"> 2 </strong>) opens directory according to the full path if the element is a directory, opens the file location
+    |  if the element is a file (you can also do this action with a right click on an arc of the chart).
+
+    h3.page-header Search
+    | After scanning folders or partitions, it is possible to search any files or folders into the disk according to all collected data at scan.
+    | The search is very fast.
+    | The <a href='#figure7'>figure 6</a> below illustrates an example.
+    p
+    img(src='/images/search.png' id='figure7').tutorial_figure
+    br
+
+    h3#searchElement(style="color:rgb(0,255,0);") Search Element
+    | It is easy to search an element: just type at least two words in the search field like illustrated
+    | on <a href='#figure7'>figure 7</a> (<strong style="color:red"> 1 </strong>) . Then a list of files or folders name and
+    | full path are displayed according to the words typed (<strong style="color:red"> 2 </strong>) . Each line of the result list is
+    | underlined by a colored line according to the element's type (<strong style="color:red"> 3 </strong>) .
+
+    h3#actionElement(style="color:rgb(0,255,0);") Action on Search
+    | Same action as seen on <a href='#figure4'>figure 4</a> are available by doing a right click on each line of the result list
+    | (Open, Rename, Delete, Properties; eventually Chart and Statistic);
+
+    h3.page-header Exploit Data
+    | Managing data is useful, that is to say that it is more comfortable  to know how to save, reuse and refresh scanned data.
+    | There are three functionality to manage data : New, Save and Open. The <a href='#figure8'>figure 8</a> below shows more.
+    p
+    img(src='/images/exploit_data.png' id='figure8').tutorial_figure
+    br
+
+    h3#new(style="color:rgb(0,255,0);") New
+    | There is an <a href='/scan/new'>New</a> menu at the top menu (<strong style="color:red"> 1 </strong>) .
+    | The main functionality  of this button is to refresh all obtained data from all scans. It is useful for two reasons:
+    ol
+      li
+        |For example if you scanned one partition and many folders from another partitions. Then you want to save only scanned information
+        | about this one partition. First you have to refresh all data, then scan the partition, and finally <a href='#save'>save</a>
+        | information into file.
+      li
+        |The second reason is that if you previously saved data into file, IntoDisk will automatically open this file and load information
+        | about previous scan. Also when you open this software, it will search the latest saved file and load information from it.
+        | A refresh will delete loaded information and tell to IntoDisk to not load the latest saved file anymore.
+
+    h3#open(style="color:rgb(0,255,0);") Open
+    | After saving a file, this last will be immediately opened and you will work on data saved from this file. One other hand, when IntoDisk
+    | starts, it will automatically load data from latest saved file. The full path of the opened file is on the window's title at scan page.
+    br
+    |You can <a href='#new'>refresh</a> data to work with new scan or simply open another file:
+    | just click on <strong>'Open'</strong> menu (<strong style="color:red"> 2 </strong>) .
+
+    h3#save(style="color:rgb(0,255,0);") Save
+    | Scanning all partitions into disk can take few minutes. Repeating the same actions everytime is time consuming and boring.
+    | That is way the save functionality  is useful.
+    br
+    |To save all information after scan, simply click on <strong>'Save'</strong> menu
+    |(<strong style="color:red"> 3 </strong>) .
+
+    h3.page-header Options
+    | There are some options good to know that can help in this section.
+    | We can set port number (see <a href='#figure9'>figure 9</a> below); add, remove files types, their extensions and corresponding color
+    | (<a href='#figure10'>figure 10</a>); import, export, save configurations (<a href='#figure11'>figure 11</a>) .
+    p
+    img(src='/images/options.png' id='figure9').tutorial_figure
+    br
+
+    h3#portConfiguration(style="color:rgb(0,255,0);") Port Configuration
+    | By default IntoDisk uses <strong>3456</strong> port number.
+    br
+    | So if this port is already used by another program, you have to :
+    ol
+      li Close the program which uses 3456 port number;
+      li Run IntoDisk and go to <a href='/options'>Options</a> menu;
+      li
+        |Choose another port number and finally click on <strong>'Update'</strong> button
+        | (<strong style="color:red"> 1 </strong>) and (<strong style="color:red"> 2 </strong>) on <a href='#figure9'>figure 9</a>.
+    |To restore default option, click on <strong>'Reset Port'</strong> button (<strong style="color:red"> 3 </strong>) .
+    br
+    <Strong>Note : </strong> The application must restart to use the new port number.
+
+    h3#fileTypeExtensions(style="color:rgb(0,255,0);") File Types and Extensions
+    | Chart into IntoDisk are colored by type of file (for example video file: avi, wmv, mp4, ...; are colored in light blue).
+    | The <a href='#table1'>table 1</a> below give default files type and their corresponding extensions.
+
+    p
+    div(style="background:rgba(0,174,239,0.8); color:black; border-radius:4px; margin:auto")
+      table.table#table1
+        caption Table 1: Files type and extensions correspondence
+        thead
+          tr
+            th File Type
+            th File Extensions
+          tr
+        tbody
+          tr
+            td(style="color:white") Audio
+            td
+              | aif, iff, m3u, m4a, mid, mp3, mpa, wav, wma
+          tr
+            td(style="color:white") Compressed
+            td
+              | 7z, cbr, deb, gz, pkg, rar, rpm, sitx, targz, zip, zipx, tar
+          tr
+            td(style="color:white") Database
+            td
+              | accdb, db, dbf, mdb, pdb, sql
+          tr
+            td(style="color:white") Developer
+            td
+              | c, class, cpp, cs, dtd, fla, h, java, lua, m, pl, py, sh, sln, swift, vb,
+              | vcxproj, xcodproj
+          tr
+            td(style="color:white") DiskImage
+            td
+              | bin, cue, dmg, iso, mdf, toast, vcd
+          tr
+            td(style="color:white") Document
+            td
+              | doc, docx, msg, odt, pages, rtf, tex, txt, wpd, wps, csv, key, ged, keychain,
+              | pps, ppt, pptx, sdf, tax2016, vcf, xml, indd, pct, pdf, xlr, xls, xlsx, fnt,
+              | fon, otf, ttf
+          tr
+            td(style="color:white") Executable
+            td
+              | apk, app, bat, cgi, com, exe, cadget, jar, wsf
+          tr
+            td(style="color:white") Image
+            td
+              | bmp, dds, gif, jpg, png, psd, pspimage, tga, thm, tif, tiff, yuv, ai, eps,
+              | ps, svg, dwg, dxf, ai, eps, ps, svg, 3dm, 3ds, max, obj
+          tr
+            td(style="color:white") System
+            td
+              | dat, cab, cpl, cur, deskthemepack, dll, dmp, drv, icns, ico, lnk, sys, cfg, ini,
+              | prf, back, tmp, msi
+          tr
+            td(style="color:white") Video
+            td
+              | 3g2, 3gp, asf, avi, flv, m4v, mov, mp4, mpg, rm, srt, swf, vob, wmv
+          tr
+            td(style="color:white") Web
+            td
+              | asp, aspx, cer, cfm, csr, css, htm, html, js, jsp, php, rss, xhtml, torrent,
+              | crdownload, part, gpx, kml, kmz
+
+    <strong>Note : </strong> All files that have extensions which are missing in <a href='#table1'>table 1</a> above are
+    |  classified as <strong>'Others'</strong> .
+    br
+    | It is possible to add new file type, add new extension or update color for a specific type of file.
+    p
+    img(src='/images/option_custom_color.png' id='figure10').tutorial_figure
+    br
+    | In <a href='/options'>Options</a> menu,
+    | <strong>'File Types and Extensions'</strong> section (below 'Port Configuration' section), there is a customizable
+    | list of files with their extension. Many configuration is possible like the <a href='#figure10'>figure 10</a> illustrates.
+    br
+    | Each file type has a header including:
+    ul
+      li file type description (<strong style="color:red"> 1 </strong>) .
+      li
+        | color in hexadecimal (<strong style="color:red"> 2 </strong>), corresponding to the header's color.
+        | By clicking on the color field, it is possible to chose another color for the type then click on
+        | button (<strong style="color:red"> 3 </strong>) to accept change.
+      li
+        | delete type: button (<strong style="color:red"> 3 </strong>) . <strong>Note:</strong> it is not possible to delete
+        | <strong>'Directory'</strong> and <strong>'Others'</strong> types.
+    |To add a new type of file, click on <strong>'Add File Type'</strong> button (<strong style="color:red"> 5 </strong>) .
+    |Each file type (except <strong>'Directory'</strong> and <strong>'Others'</strong>) has a body including:
+    ul
+      li <strong>'Add Extension'</strong> button (<strong style="color:red"> 6 </strong>), to add new extension for the type of file.
+      li list of extensions for the type of file with their delete button (<strong style="color:red"> 7 </strong>) .
+    <strong>Note:</strong> Extension and file type cannot be appears more than once.
+    br
+    br
+    | Finaly it is possible to save the configuration or export it to share it with someone, and obviously import a configuration file.
+    | Refer to the <a href='#figure11'>figure 11</a> and explanation below.
+    p
+    img(src='/images/option_custom_color_importExport.png' id='figure11').tutorial_figure
+    br
+    ul
+      li (<strong style="color:red"> 1 </strong>) import a configuration file.
+      li (<strong style="color:red"> 2 </strong>) export the new configuration (i.e with current changes), but do not save it.
+      li (<strong style="color:red"> 3 </strong>) cancel all changes.
+      li (<strong style="color:red"> 4 </strong>) save the new configuration (i.e current changes).
+      li (<strong style="color:red"> 5 </strong>) reset to default configuration like illustrates into <a href='#table1'>table 1</a>.
+
+    <strong>Note</strong>: an error dialog appears if there is any problem.
+
+    br
+    br
+    p
+    .center-content
+      p This is the end of the tutorial, enjoy it ;)
+      button.btn.btn-success.button_100px#startButton Start
+    p
+
+
+append scripts
+  script.
+    $('#startButton').click(function(){
+      location.href = '/scan';
+    });
